@@ -850,7 +850,7 @@ void loop()
   // Compute the (filtered) gyro angles
   float dt =(t_now - get_last_time())/1000.0;
   float gyro_angle_x = gyro_x*dt + get_last_x_angle();
-  float gyro_angle_y = gyro_y*dt + get_last_y_angle();
+  float gyro_angle_y = gyro_y*dt + get_last_y_angle()                                                                                                                           ;
   float gyro_angle_z = gyro_z*dt + get_last_z_angle();
   
   // Compute the drifting gyro angles
@@ -870,20 +870,17 @@ void loop()
 
   Serial.print("NEW X_ANGLES");
   Serial.println(angle_x);
-  //Serial.print("x_GYRO_OLD");
-  //Serial.println(x_gyro_old);
-
-    
+  
   float xDiff = angle_x - x_gyro_old; 
   // Serial.print("x_DIFF");
   // Serial.println(xDiff);
+  
   // Update the saved data with the latest values
   set_last_read_angle_data(t_now, angle_x, angle_y, angle_z, unfiltered_gyro_angle_x, unfiltered_gyro_angle_y, unfiltered_gyro_angle_z);
   
   // Distance Sensor
   int val = analogRead(sensorPin);
   
-  //Serial.println(val);
   //just to slow down the output - remove if trying to catch an object passing by
   delay(100);
   
@@ -895,9 +892,7 @@ void loop()
       send("L");
       delay(400);       
       send("F");
-      delay(1000);
-      send("R");
-      delay(400);
+      delay(1400);
       send("R");
       send("R");
       send("R");
@@ -909,22 +904,24 @@ void loop()
       send("R");
       delay(400);
       send("F"); 
-      delay(1000);
+      delay(1400);
       send("L");      
       delay(400);
       send("L");
-      send("L");
+      send("L");                     
       send("L");
       delay(1000);
       angle_x = x_gyro_old = 0; 
   }
-  else if(val< 250)
+  else if (val < 250)
   {
     send("F");
     Serial.println("F");
     delay(100);
   }
-  else 
+  
+  Serial.println("Distance Value:");
+  Serial.println(val);
   {
     send("P");
     Serial.println("P");
