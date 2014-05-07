@@ -1,0 +1,40 @@
+/*
+RF Transmitter Sends Commands
+This sketch transmits a short text message using the VirtualWire library
+connect the Transmitter data pin to Arduino pin 12 and sends forward or pause commands to the RF Receiver.
+*/
+#include <VirtualWire.h>
+#define TRANSMIT_PIN 10
+#define LED_PIN 13
+
+void setup()
+{
+  pinMode( LED_PIN, OUTPUT );
+  digitalWrite( LED_PIN, LOW );
+  
+  // Initialize the IO and ISR
+  vw_set_ptt_inverted(true);
+  vw_set_tx_pin(TRANSMIT_PIN);
+  vw_setup(2000); // Bits per sec
+  Serial.begin(9600);
+}
+void loop()
+{
+
+  // Sends the forward command.
+  digitalWrite( LED_PIN, HIGH );
+  Serial.print( "F" );
+  send("F");
+  digitalWrite( LED_PIN, LOW );
+  
+  // Sends the pause command.
+  digitalWrite( LED_PIN, HIGH );
+  Serial.print("P" );
+  send("P");
+  digitalWrite( LED_PIN, LOW );
+}
+void send (char *message)
+{
+  vw_send((uint8_t *)message, strlen(message));
+  vw_wait_tx(); // Wait until the whole message is gone
+}
