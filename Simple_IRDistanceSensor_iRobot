@@ -1,0 +1,91 @@
+/*Simple IR Distance Sensor
+Use the IR Distance Sensor to control the forward and pause movement of the iRobot.
+*/
+
+int IR_PIN = 9;
+int led_pin = 13;
+int sensorPin = 0; //analog pin 0
+
+int bin_1 = 3000;	//Binary 1 threshold (Microseconds)
+int bin_0 = 1000;	//Binary 0 threshold (Microseconds)
+
+#define BIT_IS_SET(i, bits)  (1 << i & bits)  
+
+const int period = 26;        // this is the period of 38kHz, in microseconds
+const int PULSE_WIDTH = 9;   // time between pulses, in microseconds 
+
+// some basic codes taken out of the manual:
+const int SPOT = 132;
+const int PAUSE = 137;
+const int FORWARD = 130; 
+const int LEFT = 129;
+const int RIGHT = 131;
+
+void setup() {
+  pinMode(led_pin, OUTPUT);
+  pinMode(IR_PIN, OUTPUT);
+  digitalWrite(led_pin, LOW);
+  digitalWrite(IR_PIN, LOW);
+  Serial.begin(9600);
+}
+
+void loop() {
+
+  // continually sends the LEFT command:
+  //send_byte(LEFT);
+  int val = analogRead(sensorPin);
+  
+  if(val< 400)
+  {
+    send_byte(FORWARD);
+  }
+  else
+  {
+    send_byte(PAUSE);
+  }
+  Serial.println(val);
+  //just to slow down the output - remove if trying to catch an object passing by
+  delay(100);
+}
+
+// oscillates at 38kHz to write "ON"
+void on(int time) {
+
+  for(time = time/period; time > 0; --time) {
+    digitalWrite(IR_PIN, HIGH);
+    delayMicroseconds(PULSE_WIDTH);
+    digitalWrite(IR_PIN, LOW);
+    delayMicroseconds(PULSE_WIDTH);
+  }
+}
+
+// just write pin low to write "OFF"
+void off(int time) {
+    digitalWrite(IR_PIN, LOW);
+    delayMicroseconds(time);
+}
+
+// write a binary 1
+void WriteOne() {
+  on(bin_1);    // on for 3ms
+  off(bin_0);   // off for 1ms
+}
+
+// write a binary 0
+void WriteZero() {
+  on(bin_0);    // on for 1ms
+  off(bin_1);   // off for 3ms
+}
+
+// Send a byte over the IR LED
+void send_byte(int bits) {
+  for (int i = 7; i >= 0; i--)
+  {
+    if (BIT_IS_SET(i, bits)) {
+      WriteOne();
+    } else {
+      WriteZero();
+    }
+  }
+  delay(4);      // leave 4ms at the end of the instruction
+}
